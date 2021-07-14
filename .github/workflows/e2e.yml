@@ -57,9 +57,10 @@ jobs:
           composer install --no-dev
           openssl genrsa -aes256 -passout pass:1234 -out "config/jwt/private.pem" 4096
           openssl rsa -pubout -in "config/jwt/private.pem" -passin pass:1234 -out "config/jwt/public.pem"
-          ./bin/phing database:create
-          ./bin/phing database:migrate
-          ./bin/phing database:fixture:e2e
+          printenv | grep APP_ENV
+          ./bin/console doctrine:database:create --no-interaction
+          ./bin/console ergonode:migrations:migrate --no-interaction --allow-no-migration --quiet
+          ./bin/console ergonode:fixture:load -g e2e --no-interaction
           wget https://get.symfony.com/cli/installer -O - | bash
           ~/.symfony/bin/symfony server:start -d --no-tls --port=8000
           cd ..
